@@ -29,7 +29,7 @@ void count_pos(int *arr, int n) {
 
     /*@ 
     @   loop assigns count[0..UPPER_LIMIT], i;
-    @   loop invariant n - Sum(&count[0], UPPER_LIMIT + 1) >= 0 && 0 <= i < n;
+    @   loop variant n - Sum(&count[0], UPPER_LIMIT + 1);
     @*/   
     for (i = 0; i < n; ++i) {
         ++count[arr[i]];

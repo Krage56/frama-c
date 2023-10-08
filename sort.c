@@ -20,12 +20,17 @@ void count_pos(int *arr, int n) {
     int count[UPPER_LIMIT + 1];
     int i, j;
     /*@
+    @   assert i == 0;
+    @*/
+    /*@
     @ loop variant UPPER_LIMIT - i;
     @*/
     for (i = 0; i <= UPPER_LIMIT; ++i) {
         count[i] = 0;
     }
-
+    /*@
+    @   assert \forall integer k; 0 <= k < UPPER_LIMIT ==> count[k] == n;
+    @*/
     /*@ 
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - Sum(&count[0], UPPER_LIMIT + 1);
@@ -34,6 +39,9 @@ void count_pos(int *arr, int n) {
         ++count[arr[i]];
     }
 
+    /*@
+    @   assert i == 1;
+    @*/
     /*@
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - count[i];   
@@ -46,8 +54,14 @@ void count_pos(int *arr, int n) {
     @   ghost int sort_counter = 0;
     @*/
     /*@
+    @   assert \forall integer k; 0 <= k < UPPER_LIMIT ==> 0 <= count[k] <= n;
+    @*/
+    /*@
+    @   assert i == 0;
+    @*/
+    /*@
     @   loop assigns arr[0..n-1], i, j;
-    @   loop variant Sum(&count[i], UPPER_LIMIT - i + 1);
+    @   loop variant UPPER_LIMIT - i;
     @*/  
     for (i = 0; i < UPPER_LIMIT; ++i) {
         /*@
@@ -59,14 +73,22 @@ void count_pos(int *arr, int n) {
         @*/
         /*@
         @   loop assigns arr[j..count[i] - 1];
-        @   loop invariant Sorted(arr, sort_counter + 1);
+        @   loop variant n - sort_counter;
         @*/
         for (; j < count[i]; ++j) {
             arr[j] = i;
             //@ ghost ++sort_counter;
         }
     }
+    /*@
+    @   assert count[UPPER_LIMIT] <= j <= n; 
+    @*/
+    /*@
+    @   loop assigns arr[j..n-1], j;
+    @   loop variant n - sort_counter;
+    @*/
     for (j = count[UPPER_LIMIT]; j < n; ++j) {
         arr[j] = UPPER_LIMIT;
+        //@ ghost ++sort_counter;
     }
 }

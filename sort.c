@@ -23,18 +23,18 @@ void count_pos(int *arr, int n) {
     int count[UPPER_LIMIT + 1];
     int i, j;
     /*@
-    @ loop invariant (0 <= i <= UPPER_LIMIT);
+    @ loop invariant (\forall integer k; 0 <= k < i ==> (count[k] == 0));
+    @ loop invariant 0 <= i <= UPPER_LIMIT + 1;
+    @ loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @ loop assigns count[0..UPPER_LIMIT], i;
     @ loop variant UPPER_LIMIT - i;
     @*/
     for (i = 0; i <= UPPER_LIMIT; ++i) {
         count[i] = 0;
     }
-    /*@
-    @   assert \forall integer k; 0 <= k < UPPER_LIMIT ==> count[k] == 0;
-    @*/
+
     /*@ 
-    @   loop invariant (0 <= i < n) && Increased{Pre, Here}(&count[0], i);
+    @   loop invariant (0 <= i <= n) && Increased{Pre, Here}(&count[0], i);
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - Sum(&count[0], UPPER_LIMIT + 1);
     @*/   
@@ -43,7 +43,7 @@ void count_pos(int *arr, int n) {
     }
 
     /*@
-    @   loop invariant 1 <= i <= UPPER_LIMIT;
+    @   loop invariant 1 <= i <= UPPER_LIMIT + 1;
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - count[i];   
     @*/

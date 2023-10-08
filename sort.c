@@ -42,10 +42,28 @@ void count_pos(int *arr, int n) {
         count[i] += count[i - 1];
     }
 
+    /*@
+    @   ghost int sort_counter = 0;
+    @*/
+    /*@
+    @   loop assigns arr[0..n-1], i, j;
+    @   loop variant Sum(&count[i], UPPER_LIMIT - i + 1);
+    @*/  
     for (i = 0; i < UPPER_LIMIT; ++i) {
+        /*@
+        @   assert (i <= 0) || ((i > 0) && (0 <= count[i-1] <= n));
+        @*/
         j = (i > 0) ? count[i - 1] : 0;
+        /*@
+        @   assert (0 <= j <= n);
+        @*/
+        /*@
+        @   loop assigns arr[j..count[i] - 1];
+        @   loop invariant Sorted(arr, sort_counter + 1);
+        @*/
         for (; j < count[i]; ++j) {
             arr[j] = i;
+            //@ ghost ++sort_counter;
         }
     }
     for (j = count[UPPER_LIMIT]; j < n; ++j) {

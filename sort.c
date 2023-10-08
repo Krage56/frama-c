@@ -23,6 +23,7 @@ void count_pos(int *arr, int n) {
     @   assert i == 0;
     @*/
     /*@
+    @ loop invariant 0 <= i <= UPPER_LIMIT;
     @ loop variant UPPER_LIMIT - i;
     @*/
     for (i = 0; i <= UPPER_LIMIT; ++i) {
@@ -32,6 +33,7 @@ void count_pos(int *arr, int n) {
     @   assert \forall integer k; 0 <= k < UPPER_LIMIT ==> count[k] == n;
     @*/
     /*@ 
+    @   loop invariant 0 <= i < n;
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - Sum(&count[0], UPPER_LIMIT + 1);
     @*/   
@@ -43,6 +45,7 @@ void count_pos(int *arr, int n) {
     @   assert i == 1;
     @*/
     /*@
+    @   loop invariant 1 <= i <= UPPER_LIMIT;
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - count[i];   
     @*/
@@ -60,6 +63,7 @@ void count_pos(int *arr, int n) {
     @   assert i == 0;
     @*/
     /*@
+    @   loop invariant 0 <= i < UPPER_LIMIT;
     @   loop assigns arr[0..n-1], i, j;
     @   loop variant UPPER_LIMIT - i;
     @*/  

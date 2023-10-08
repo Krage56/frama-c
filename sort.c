@@ -5,6 +5,9 @@
 @   \forall integer i;
 @   0 <= i < n - 1 ==> a[i] <= a[i + 1];
 @*/
+/*@ predicate Increased{L1, L2}(int* arr, integer pos) = 
+@   \at(arr[pos], L2) > \at(arr[pos], L1);
+@*/
 
 /*@
 @   logic integer Sum(int *a, integer n) = (n > 0) ? a[n - 1] + Sum(a, n - 1) : 0;
@@ -21,7 +24,7 @@ void count_pos(int *arr, int n) {
     int i, j;
     /*@
     @ loop invariant (0 <= i <= UPPER_LIMIT);
-    @ loop assigns count[0..UPPER_LIMIT];
+    @ loop assigns count[0..UPPER_LIMIT], i;
     @ loop variant UPPER_LIMIT - i;
     @*/
     for (i = 0; i <= UPPER_LIMIT; ++i) {
@@ -31,7 +34,7 @@ void count_pos(int *arr, int n) {
     @   assert \forall integer k; 0 <= k < UPPER_LIMIT ==> count[k] == 0;
     @*/
     /*@ 
-    @   loop invariant 0 <= i < n;
+    @   loop invariant (0 <= i < n) && Increased{Pre, Here}(&count[0], i);
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - Sum(&count[0], UPPER_LIMIT + 1);
     @*/   

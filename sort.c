@@ -43,29 +43,12 @@ void count_pos(int *arr, int n) {
     }
 
     for (i = 0; i < UPPER_LIMIT; ++i) {
-        for (j = count[i]; j < count[i + 1]; ++j) {
+        j = (i > 0) ? count[i - 1] : 0;
+        for (; j < count[i]; ++j) {
             arr[j] = i;
         }
     }
     for (j = count[UPPER_LIMIT]; j < n; ++j) {
         arr[j] = UPPER_LIMIT;
     }
-}
-
-#include <stdio.h>
-
-int main(){
-    int arr[5];
-    arr[0] = 2;
-    arr[1] = 3;
-    arr[2] = 1;
-    arr[3] = 1;
-    arr[4] = 5;
-
-    count_pos(&arr[0], 5);
-
-    for(int i = 0; i < 5; ++i){
-        printf("%d\n", arr[i]);
-    }
-    return 0;
 }

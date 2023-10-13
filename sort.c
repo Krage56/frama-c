@@ -14,11 +14,19 @@
 @*/
 
 /*@
+@   logic integer Count(int* arr, integer len, integer elem) = (len == 0) ? 0 : (arr[len - 1] == elem) ? 1 + Count(arr, len - 1, elem) : Count(arr, len - 1, elem); 
+@*/
+
+/*@
 @   predicate Swapped{L1,L2}(int *a, integer i, integer j) =
 @       \at(a[i],L1) == \at(a[j],L2) && 
 @       \at(a[j],L1) == \at(a[i],L2) && 
 @       \forall integer k; k != i && k != j 
 @           ==> \at(a[k],L1) == \at(a[k],L2);
+@*/
+
+/*@
+@   predicate Incremented{L1, L2}(int* a, int pos) = \at(a[pos], L1) + 1 == \at(a[pos], L2);
 @*/
 
 /*@
@@ -56,16 +64,18 @@ void count_pos(int *arr, int n) {
     for (i = 0; i <= UPPER_LIMIT; ++i) {
         count[i] = 0;
     }
-
+    //@ assert \forall integer k; 0 <= k <= UPPER_LIMIT ==> count[k] == 0;
     /*@ 
     @   loop invariant \at(i, LoopEntry) == 0;
-    @   loop invariant Increased{Pre, Here}(&count[0], UPPER_LIMIT + 1);
-    @   loop invariant \forall integer k; 0 <= arr[k] <= UPPER_LIMIT ==> 0 <= count[i] < n;
+    @   loop invariant \forall integer j; 0 <= j < n ==> \valid(&count[0] + (arr[j]));
+    @   loop invariant \forall integer j; 0 <= j < n ==> (Count(arr, n, arr[j]) >= *(&count[0] + (arr[j]))); 
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
     @*/   
     for (i = 0; i < n; ++i) {
         ++count[arr[i]];
+        //@ assert Incremented{Pre, LoopCurrent}(&count[0], arr[i]);
+        //@  assert *(&count[0] + (arr[i])) <= Count(arr, n, arr[i]);
         /*@
         @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);
         @*/

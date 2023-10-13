@@ -18,7 +18,7 @@
 @*/
 
 /*@ 
-@   lemma non_negativity: \forall int* count, integer i, integer n; ((\valid(count + (0 .. UPPER_LIMIT)) && (0 <= i <= UPPER_LIMIT ==> 0 <= count[i] <= n))) ==> (\forall integer k; Count(count, UPPER_LIMIT + 1, k) >= 0);
+@   lemma non_negativity: \forall int* count, integer n; (\valid(count + (0 .. UPPER_LIMIT))) ==> (\forall integer k; Count(count, UPPER_LIMIT + 1, k) >= 0);
 @*/
 
 /*@
@@ -71,6 +71,7 @@ void count_pos(int *arr, int n) {
     //@ assert \forall integer k; 0 <= k <= UPPER_LIMIT ==> count[k] == 0;
     /*@ 
     @   loop invariant \at(i, LoopEntry) == 0;
+    @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @   loop invariant \forall integer j; 0 <= j < n ==> \valid(&count[0] + (arr[j]));
     @   loop invariant \forall integer j; 0 <= j < n ==> (Count(arr, n, arr[j]) >= *(&count[0] + (arr[j]))); 
     @   loop assigns count[0..UPPER_LIMIT], i;
@@ -79,7 +80,7 @@ void count_pos(int *arr, int n) {
     for (i = 0; i < n; ++i) {
         ++count[arr[i]];
         //@ assert Incremented{Pre, LoopCurrent}(&count[0], arr[i]);
-        //@  assert *(&count[0] + (arr[i])) <= Count(arr, n, arr[i]);
+        //@ assert *(&count[0] + (arr[i])) <= Count(arr, n, arr[i]);
         /*@
         @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);
         @*/

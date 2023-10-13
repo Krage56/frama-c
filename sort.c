@@ -3,7 +3,11 @@
 
 /*@ predicate Sorted(int *a, integer n) =
 @   \forall integer i;
-@   (0 <= i < n - 1 ==> a[i] <= a[i + 1]) || (0 <= n <= 1);
+@   (0 <= i < n - 1 ==> a[i] <= a[i + 1]);
+@*/
+
+/*@
+@   predicate LinearOrderedPair(int* a, integer len, integer pos) = (0 < pos < len) ==> a[pos] >= a[pos - 1];
 @*/
 /*@
 @   logic integer Sum{L}(int *a, integer n) = (n > 0) ? a[n - 1] + Sum{L}(a, n - 1) : 0;
@@ -115,18 +119,23 @@ void count_pos(int *arr, int n) {
         @*/
         j = (i > 0) ? count[i - 1] : 0;
         /*@
+        @   assert \forall integer k; 0 <= k <= UPPER_LIMIT ==> 0 <= count[k] <= n;
+        @*/
+        /*@
         @   assert (0 <= j <= n);
         @*/
         /*@
-        @   loop invariant Sorted(&arr[j], sort_counter);
+        @   loop invariant 0 <= i <= UPPER_LIMIT;
+        @   loop invariant LinearOrderedPair(arr, n, j);
+        @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
         @   loop assigns arr[j..count[i] - 1];
         @   loop variant n - j;
         @*/
         for (; j < count[i]; ++j) {
             arr[j] = i;
-            //@ ghost ++sort_counter;
+            
         }
-        //@ ghost sort_counter = 0;
+        //@ assert Sorted(arr, j);
     }
 
     /*@

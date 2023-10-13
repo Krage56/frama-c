@@ -17,6 +17,10 @@
 @   logic integer Count(int* arr, integer len, integer elem) = (len == 0) ? 0 : (arr[len - 1] == elem) ? 1 + Count(arr, len - 1, elem) : Count(arr, len - 1, elem); 
 @*/
 
+/*@ 
+@   lemma non_negativity: \forall int* count, integer i, integer n; ((\valid(count + (0 .. UPPER_LIMIT)) && (0 <= i <= UPPER_LIMIT ==> 0 <= count[i] <= n))) ==> (\forall integer k; Count(count, UPPER_LIMIT + 1, k) >= 0);
+@*/
+
 /*@
 @   predicate Swapped{L1,L2}(int *a, integer i, integer j) =
 @       \at(a[i],L1) == \at(a[j],L2) && 

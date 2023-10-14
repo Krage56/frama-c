@@ -22,7 +22,9 @@
 @*/
 
 /*@ 
-@   lemma non_negativity: \forall int* count, integer n; (\valid(count + (0 .. UPPER_LIMIT))) ==> (\forall integer k; Count(count, UPPER_LIMIT + 1, k) >= 0);
+@   lemma non_negativity:
+    \forall int *a, integer n, k;
+        Count(a, n, k) >= 0;
 @*/
 
 /*@
@@ -101,9 +103,6 @@ void count_pos(int *arr, int n) {
     }
 
     /*@
-    @   ghost int sort_counter = 0;
-    @*/
-    /*@
     @   assert \forall integer k; 0 <= k <= UPPER_LIMIT ==> 0 <= count[k] <= n;
     @*/
    
@@ -139,11 +138,12 @@ void count_pos(int *arr, int n) {
     }
 
     /*@
+    @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
+    @   loop invariant Sorted(arr, j);
     @   loop assigns arr[j..n-1], j;
     @   loop variant n - j;
     @*/
     for (j = count[UPPER_LIMIT]; j < n; ++j) {
         arr[j] = UPPER_LIMIT;
-        //@ ghost ++sort_counter;
     }
 }

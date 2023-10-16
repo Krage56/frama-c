@@ -7,9 +7,6 @@
 @*/
 
 /*@
-@   predicate LinearOrderedPair(int* a, integer len, integer pos) = (0 < pos < len) ==> a[pos] >= a[pos - 1];
-@*/
-/*@
 @   logic integer Sum{L}(int *a, integer n) = (n > 0) ? a[n - 1] + Sum{L}(a, n - 1) : 0;
 @*/
 
@@ -26,6 +23,7 @@
     \forall int *a, integer n, k;
         Count(a, n, k) >= 0;
 @*/
+
 
 /*@
 @   predicate Swapped{L1,L2}(int *a, integer i, integer j) =
@@ -125,16 +123,22 @@ void count_pos(int *arr, int n) {
         @*/
         /*@
         @   loop invariant 0 <= i <= UPPER_LIMIT;
-        @   loop invariant LinearOrderedPair(arr, n, j);
+        @   loop invariant \forall integer k; j < k < count[i] && \at(arr[k], Pre) != i ==> arr[k] == i;
+        @   loop invariant \forall integer k; 0 < k < j ==> arr[k] <= i;
+        @   loop invariant \forall integer k; count[i] <= k <= UPPER_LIMIT && \at(arr[k], Pre) == arr[k];
+        @   loop invariant \forall integer k; j < k < count[i] && \at(arr[k], Pre) == i ==> arr[k] == i;
         @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
         @   loop assigns arr[j..count[i] - 1];
         @   loop variant n - j;
         @*/
         for (; j < count[i]; ++j) {
             arr[j] = i;
-            
+            //@ assert arr[j] == i;
         }
-        //@ assert Sorted(arr, j);
+        /*@
+        @ assert Count(\at(arr, LoopEntry), j, arr[j > 0? j-1: 0]) == Count(\at(arr, LoopCurrent), j, arr[j > 0? j-1: 0]); 
+        @*/
+        //@ assert Sorted(\at(arr, LoopCurrent), j - 1);
     }
 
     /*@

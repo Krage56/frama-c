@@ -46,6 +46,7 @@
    }
 */
 
+
 /*@
 @ inductive Permuted{L1,L2}(int *arr, integer l, integer r) {
 @       case Permuted_refl{L}:
@@ -145,12 +146,15 @@ void count_pos(int *arr, int n) {
         for (; j < count[i]; ++j) {
             arr[j] = i;
             //@ assert arr[j] == i;
+            //@ assert Unchanged{Pre, Here}(arr, j + 1, n);
         }
+        
+        //@ assert Sorted(\at(arr, Here), j - 1);
+        //How to show equality of Unchanged and invariant?
+        //@ assert Unchanged{Pre, Here}(arr, count[i], n);
         /*@
-        @ assert Count(\at(arr, LoopEntry), j, arr[j > 0? j-1: 0]) == Count(\at(arr, LoopCurrent), j, arr[j > 0? j-1: 0]); 
+        @   assert \forall integer k; count[i] <= k <= UPPER_LIMIT && \at(arr[k], Pre) == arr[k];
         @*/
-        //@ assert Sorted(\at(arr, LoopCurrent), j - 1);
-        //@ assert Unchanged{Pre, LoopCurrent}(arr, j, n);
     }
 
     /*@

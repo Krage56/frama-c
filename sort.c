@@ -94,7 +94,9 @@ void count_pos(int *arr, int n) {
     @*/   
     for (i = 0; i < n; ++i) {
         ++count[arr[i]];
-        //@ assert Incremented{Pre, LoopCurrent}(&count[0], arr[i]);
+        /*@ 
+            assert Incremented{Pre, LoopCurrent}(&count[0], arr[i]);
+        @*/
         //@ assert *(&count[0] + (arr[i])) <= Count(arr, n, arr[i]);
         /*@
         @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);
@@ -116,7 +118,7 @@ void count_pos(int *arr, int n) {
     /*@
     @   loop invariant \at(i, LoopEntry) == 0;
     @   loop invariant 0 <= i <= UPPER_LIMIT;
-    @   loop invariant \forall integer k; count[i] <= k <= UPPER_LIMIT && \at(arr[k], Pre) == arr[k];
+    @   loop invariant \forall integer k; count[i] <= k <= n && \at(arr[k], Pre) == arr[k];
     @   loop invariant \forall integer k; 0 < k <= UPPER_LIMIT && 0 <= count[i-1] <= count[i];
     @   loop assigns arr[0..n-1], i, j;
     @   loop variant UPPER_LIMIT - i;
@@ -136,7 +138,7 @@ void count_pos(int *arr, int n) {
         @   loop invariant 0 <= i <= UPPER_LIMIT;
         @   loop invariant \forall integer k; j < k < count[i] && \at(arr[k], Pre) != i ==> arr[k] == i;
         @   loop invariant \forall integer k; 0 < k < j ==> arr[k] <= i;
-        @   loop invariant \forall integer k; count[i] <= k <= UPPER_LIMIT && \at(arr[k], Pre) == arr[k];
+        @   loop invariant \forall integer k; count[i] <= k <= n && \at(arr[k], Pre) == arr[k];
         @   loop invariant \forall integer k; j < k < count[i] && \at(arr[k], Pre) == i ==> arr[k] == i;
         @   loop invariant \forall integer k; 0 < k < j ==> arr[k - 1] <= arr[k];
         @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
@@ -146,15 +148,16 @@ void count_pos(int *arr, int n) {
         for (; j < count[i]; ++j) {
             arr[j] = i;
             //@ assert arr[j] == i;
-            //@ assert Unchanged{Pre, Here}(arr, j + 1, n);
+            //@ assert Unchanged{Pre, Here}(arr, count[i], n);
         }
         
         //@ assert Sorted(\at(arr, Here), j - 1);
         //How to show equality of Unchanged and invariant?
         //@ assert Unchanged{Pre, Here}(arr, count[i], n);
         /*@
-        @   assert \forall integer k; count[i] <= k <= UPPER_LIMIT && \at(arr[k], Pre) == arr[k];
+        @   assert \forall integer k; count[i] <= k <= n && \at(arr[k], Pre) == arr[k];
         @*/
+        Lol:
     }
 
     /*@

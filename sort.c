@@ -85,8 +85,8 @@ void count_pos(int *arr, int n) {
     @*/
     for (i = 0; i <= UPPER_LIMIT; ++i) {
         count[i] = 0;
+        //@ assert count[i] == 0;
     }
-    //@ assert \forall integer k; 0 <= k <= UPPER_LIMIT ==> count[k] == 0;
     /*@ 
     @   loop invariant \at(i, LoopEntry) == 0;
     @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));

@@ -38,10 +38,6 @@
 @*/
 
 /*@
-@   predicate Incremented{L1, L2}(int* a, int pos) = \at(a[pos], L1) + 1 == \at(a[pos], L2);
-@*/
-
-/*@
    axiomatic Unchanged
    {
         predicate Unchanged{K,L}(int* a, integer m, integer n) = \forall integer i; m <= i < n ==> \at(a[i], K) == \at(a[i], L);
@@ -100,9 +96,6 @@ void count_pos(int *arr, int n) {
     for (i = 0; i < n; ++i) {
         ++count[arr[i]];
         //@ assert (0 <= arr[j] <= UPPER_LIMIT) ==> count[arr[j]] >= 0;
-        /*@ 
-            assert Incremented{Pre, LoopCurrent}(&count[0], arr[i]);
-        @*/
         //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
         /*@
         @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);

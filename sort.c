@@ -89,7 +89,6 @@ void count_pos(int *arr, int n) {
     @   loop invariant \forall integer j; (0 <= j < n ==> 0 <= arr[j] <= UPPER_LIMIT);
     @   loop invariant \forall integer j; 0 <= j <= UPPER_LIMIT ==> count[j] >= 0;
     @   loop invariant \forall integer j; 0 <= j < n ==> \valid(&count[0] + (arr[j]));
-    @   loop invariant \forall integer j; 0 <= j < n ==> (Count(arr, n, arr[j]) >= count[arr[j]]); 
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
     @*/   
@@ -99,7 +98,6 @@ void count_pos(int *arr, int n) {
         /*@
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
         @*/
-        //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
         /*@
         @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);
         @*/

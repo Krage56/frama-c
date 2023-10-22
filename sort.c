@@ -96,6 +96,9 @@ void count_pos(int *arr, int n) {
     for (i = 0; i < n; ++i) {
         ++count[arr[i]];
         //@ assert (0 <= arr[j] <= UPPER_LIMIT) ==> count[arr[j]] >= 0;
+        /*@
+            assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
+        @*/
         //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
         /*@
         @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);

@@ -7,28 +7,38 @@
 @*/
 
 /*@
-@   logic integer Sum{L}(int *a, integer n) = (n > 0) ? a[n - 1] + Sum{L}(a, n - 1) : 0;
+@   logic integer Sum{L}(int *a, integer n) = (n > 0) ? \at(a[n - 1], L) + Sum{L}(a, n - 1) : 0;
 @*/
 
-/*@ predicate Increased{L1, L2}(int* arr, integer len) = 
-@   Sum{L2}(arr, len) >= Sum{L1}(arr, len);
-@*/
+/*@ghost
+@ /@lemma
+@ @ requires 0 <= i <= n-1;
+@ @ requires \valid(arr + (0..n-1));
+@ @ decreases (n - i);
+@ @ ensures ((i == n-1) ==> (Sum(arr, n) == Sum(arr, i) + arr[i]));
+@ @/
+@void sum_proof1(int* arr, int i, int n){
+@     if (i != n - 1)
+@       sum_proof1(arr, i+1, n);
+@}*/
+
 
 /*@
     predicate RightUnchange{L1, L2}(int* arr, int* count, integer n, integer limit, integer i) = \forall integer k; \at(count[i], L2) <= k <= n ==> \at(arr[k], L2) == \at(arr[k], L2);
 @*/
+/*@
+@   lemma linear_sum{l}:
+        \forall int* arr, integer n, integer i; 
+        (((0 <= i <= n-1) && Sum(arr, 0) == 0) ==> (Sum(arr, n) == Sum(arr, i) + arr[i] + Sum(arr + i + 1, n - i - 1)));
+@*/
+
 
 /*@
-@   logic integer Count(int* arr, integer len, integer elem) = (len == 0) ? 0 : (arr[len - 1] == elem) ? 1 + Count(arr, len - 1, elem) : Count(arr, len - 1, elem); 
+@   lemma spec_linear_sum{l}:
+    \forall int* a, int* b, integer l, integer n; \exists integer j; 
+    (((0 <= l < n) && (0 <= j < n) && (l != j)) ==> ((a[j] == b[j] + 1) && (a[l] == b[l]))) ==>
+    Sum(a, n) == Sum(a, j) + Sum(a + j + 1, n - j - 1) + a[j] == Sum(b, j) + Sum(b + j + 1, n - j - 1) + b[j] + 1 == Sum(b, n) + 1;
 @*/
-
-/*@ 
-@   lemma non_negativity:
-    \forall int *a, integer n, k;
-        Count(a, n, k) >= 0;
-@*/
-
-
 /*@
 @   predicate Swapped{L1,L2}(int *a, integer i, integer j) =
 @       \at(a[i],L1) == \at(a[j],L2) && 
@@ -61,7 +71,6 @@
 @*/
 
 
-
 /*@
 @   requires \valid(arr + (0..n-1));
 @   requires \forall integer i; 0 <= i <= n - 1 ==> 0 <= arr[i] <= UPPER_LIMIT;
@@ -87,7 +96,7 @@ void count_pos(int *arr, int n) {
     @   loop invariant \at(i, LoopEntry) == 0;
     @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @   loop invariant \forall integer j; (0 <= j < n ==> 0 <= arr[j] <= UPPER_LIMIT);
-    @   loop invariant \forall integer j; 0 <= j <= UPPER_LIMIT ==> count[j] >= 0;
+    @   loop invariant \forall integer j; 0 <= j <= UPPER_LIMIT ==> count[j] >= 0; 
     @   loop invariant \forall integer j; 0 <= j < n ==> \valid(&count[0] + (arr[j]));
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
@@ -99,7 +108,14 @@ void count_pos(int *arr, int n) {
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
         @*/
         /*@
-        @   assert Sum{Pre}(&count[0], UPPER_LIMIT + 1) < Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1);
+            assert \forall integer l; (0 <= l < arr[i] ==> count[l] == \at(count[l], LoopCurrent));
+        @*/
+        /*@
+            assert \forall integer l; (arr[i] < l <= UPPER_LIMIT ==> count[l] == \at(count[l], LoopCurrent));
+        @*/
+        /*@
+            assert
+             (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
         @*/
     }
     /*@

@@ -26,19 +26,36 @@
 /*@
     predicate RightUnchange{L1, L2}(int* arr, int* count, integer n, integer limit, integer i) = \forall integer k; \at(count[i], L2) <= k <= n ==> \at(arr[k], L2) == \at(arr[k], L2);
 @*/
-/*@
-@   lemma linear_sum{l}:
-        \forall int* arr, integer n, integer i; 
-        (((0 <= i <= n-1) && Sum(arr, 0) == 0) ==> (Sum(arr, n) == Sum(arr, i) + arr[i] + Sum(arr + i + 1, n - i - 1)));
-@*/
+
 
 
 /*@
 @   lemma spec_linear_sum{l}:
     \forall int* a, int* b, integer l, integer n; \exists integer j; 
     (((0 <= l < n) && (0 <= j < n) && (l != j)) ==> ((a[j] == b[j] + 1) && (a[l] == b[l]))) ==>
-    Sum(a, n) == Sum(a, j) + Sum(a + j + 1, n - j - 1) + a[j] == Sum(b, j) + Sum(b + j + 1, n - j - 1) + b[j] + 1 == Sum(b, n) + 1;
+    Sum(a, n) == Sum(b, n) + 1;
 @*/
+
+
+
+
+/*@
+    ghost
+    /@
+    lemma
+    requires \valid(arr + (0..n-1));
+    requires 0 <= i <= n - 1;
+    decreases n;
+    ensures Sum(arr, n) == Sum(arr, i) + arr[i] + Sum(arr + i + 1, n - i - 1);
+    @/
+    void proof2(int* arr, int n, int i){
+        if (n > 0){
+            proof2(arr, n-1, i);
+        }
+    }
+@*/
+
+
 /*@
 @   predicate Swapped{L1,L2}(int *a, integer i, integer j) =
 @       \at(a[i],L1) == \at(a[j],L2) && 

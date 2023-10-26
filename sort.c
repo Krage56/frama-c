@@ -32,7 +32,7 @@
 /*@
 @   lemma spec_linear_sum{l}:
     \forall int* a, int* b, integer l, integer n; \exists integer j; 
-    (((0 <= l < n) && (0 <= j < n) && (l != j)) ==> ((a[j] == b[j] + 1) && (a[l] == b[l]))) ==>
+    (((0 <= l < n) && (0 <= j < n) && (l != j)) && ((a[j] == b[j] + 1) && (a[l] == b[l]))) ==>
     Sum(a, n) == Sum(b, n) + 1;
 @*/
 

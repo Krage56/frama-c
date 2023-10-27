@@ -10,18 +10,6 @@
 @   logic integer Sum{L}(int *a, integer n) = (n > 0) ? \at(a[n - 1], L) + Sum{L}(a, n - 1) : 0;
 @*/
 
-/*@ghost
-@ /@lemma
-@ @ requires 0 <= i <= n-1;
-@ @ requires \valid(arr + (0..n-1));
-@ @ decreases (n - i);
-@ @ ensures ((i == n-1) ==> (Sum(arr, n) == Sum(arr, i) + arr[i]));
-@ @/
-@void sum_proof1(int* arr, int i, int n){
-@     if (i != n - 1)
-@       sum_proof1(arr, i+1, n);
-@}*/
-
 
 /*@
     predicate RightUnchange{L1, L2}(int* arr, int* count, integer n, integer limit, integer i) = \forall integer k; \at(count[i], L2) <= k <= n ==> \at(arr[k], L2) == \at(arr[k], L2);
@@ -30,30 +18,12 @@
 
 
 /*@
-@   lemma spec_linear_sum{l}:
-    \forall int* a, int* b, integer l, integer n; \exists integer j; 
-    (((0 <= l < n) && (0 <= j < n) && (l != j)) && ((a[j] == b[j] + 1) && (a[l] == b[l]))) ==>
-    Sum(a, n) == Sum(b, n) + 1;
+@   lemma spec_linear_sum{L1, L2}:
+    \forall int* a, integer n, integer l; \exists integer j; 
+    (((0 <= j < n) && (l != j)) && ((\at(a[j], L1) == \at(a[j], L2) + 1) && (\at(a[l], L1) == \at(a[l], L2)))) ==>
+    Sum{L1}(a, n) == Sum{L2}(a, n) + 1;
 @*/
 
-
-
-
-/*@
-    ghost
-    /@
-    lemma
-    requires \valid(arr + (0..n-1));
-    requires 0 <= i <= n - 1;
-    decreases n;
-    ensures Sum(arr, n) == Sum(arr, i) + arr[i] + Sum(arr + i + 1, n - i - 1);
-    @/
-    void proof2(int* arr, int n, int i){
-        if (n > 0){
-            proof2(arr, n-1, i);
-        }
-    }
-@*/
 
 
 /*@
@@ -125,14 +95,14 @@ void count_pos(int *arr, int n) {
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
         @*/
         /*@
-            assert \forall integer l; (0 <= l < arr[i] ==> count[l] == \at(count[l], LoopCurrent));
+            assert \forall integer l; ((0 <= l < n) && (l != i)) && (count[arr[l]] == \at(count[arr[l]], LoopCurrent));
         @*/
         /*@
-            assert \forall integer l; (arr[i] < l <= UPPER_LIMIT ==> count[l] == \at(count[l], LoopCurrent));
+            assert \forall integer l; 
+            (0 <= l <= UPPER_LIMIT && l != arr[i]) && (count[l] == \at(count[l], LoopCurrent));
         @*/
         /*@
-            assert
-             (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
+            assert (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
         @*/
     }
     /*@

@@ -69,30 +69,52 @@ void count_pos(int *arr, int n) {
     int count[UPPER_LIMIT + 1];
     int i, j;
     /*@
-    @ loop invariant (\forall integer k; 0 <= k < i ==> (count[k] == 0));
+    @ loop invariant \at(i, LoopEntry) == 0;
+    @ loop invariant (\forall integer k; (0 <= k < i) ==> (count[k] == 0));
     @ loop invariant 0 <= i <= UPPER_LIMIT + 1;
     @ loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @ loop assigns count[0..UPPER_LIMIT], i;
     @ loop variant UPPER_LIMIT - i;
     @*/
     for (i = 0; i <= UPPER_LIMIT; ++i) {
+        /*@
+            assert \forall integer k; (0 <= k < i) ==> (count[k] == 0); 
+        @*/
         count[i] = 0;
-        //@ assert count[i] == 0;
+        /*@ 
+            assert count[i] == 0;
+        @*/
+        /*@
+            assert \forall integer j; (0 <= j <= i) && (count[j] == 0);
+        @*/
     }
+    /*@
+        assert \forall integer k; (0 <= k <= UPPER_LIMIT) && (count[k] == 0);
+    @*/
     /*@ 
     @   loop invariant \at(i, LoopEntry) == 0;
     @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @   loop invariant \forall integer j; (0 <= j < n ==> 0 <= arr[j] <= UPPER_LIMIT);
-    @   loop invariant \forall integer j; 0 <= j <= UPPER_LIMIT ==> count[j] >= 0; 
+    @   loop invariant \forall integer j; (0 <= j <= UPPER_LIMIT) ==> (count[j] >= 0); 
     @   loop invariant \forall integer j; 0 <= j < n ==> \valid(&count[0] + (arr[j]));
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
     @*/   
     for (i = 0; i < n; ++i) {
+        //@ assert count[arr[i]] >= 0;
         ++count[arr[i]];
-        //@ assert (0 <= arr[j] <= UPPER_LIMIT) ==> count[arr[j]] >= 0;
         /*@
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
+        @*/
+        /*@ 
+            assert count[arr[i]] >= 0;
+        @*/
+        /*@
+            assert \forall integer k; (k != arr[i]) && (count[k] == \at(count[k], LoopCurrent) >= 0);
+        @*/
+        
+        /*@
+            assert count[arr[i]] != \at(count[arr[i]], LoopCurrent); 
         @*/
         /*@
             assert \forall integer l; ((0 <= l < n) && (l != i)) && (count[arr[l]] == \at(count[arr[l]], LoopCurrent));

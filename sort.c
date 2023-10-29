@@ -19,12 +19,10 @@
 
 /*@
 @   lemma spec_linear_sum{L1, L2}:
-    \forall int* a, integer n, integer l; \exists integer j; 
-    (((0 <= j < n) && (l != j)) && ((\at(a[j], L1) == \at(a[j], L2) + 1) && (\at(a[l], L1) == \at(a[l], L2)))) ==>
+    \forall int* a, integer n, integer l; 
+    (\exists integer j; ((0 <= j < n) && (l != j)) && ((\at(a[j], L1) == \at(a[j], L2) + 1) && (\at(a[l], L1) == \at(a[l], L2)))) ==>
     Sum{L1}(a, n) == Sum{L2}(a, n) + 1;
 @*/
-
-
 
 /*@
 @   predicate Swapped{L1,L2}(int *a, integer i, integer j) =
@@ -85,71 +83,69 @@ void count_pos(int *arr, int n) {
             assert count[i] == 0;
         @*/
         /*@
-            assert \forall integer j; (0 <= j <= i) && (count[j] == 0);
+            assert \forall integer j; (0 <= j <= i) ==> (count[j] == 0);
         @*/
     }
     /*@
-        assert \forall integer k; (0 <= k <= UPPER_LIMIT) && (count[k] == 0);
+        assert \forall integer k; (0 <= k <= UPPER_LIMIT) ==> (count[k] == 0);
     @*/
     /*@ 
     @   loop invariant \at(i, LoopEntry) == 0;
     @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
-    @   loop invariant \forall integer j; (0 <= j < n ==> 0 <= arr[j] <= UPPER_LIMIT);
+    @   loop invariant \forall integer j; (0 <= j < n) ==> (0 <= arr[j] <= UPPER_LIMIT);
     @   loop invariant \forall integer j; (0 <= j <= UPPER_LIMIT) ==> (count[j] >= 0); 
-    @   loop invariant \forall integer j; 0 <= j < n ==> \valid(&count[0] + (arr[j]));
+    @   loop invariant \forall integer j; (0 <= j < n) ==> \valid(&count[0] + (arr[j]));
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
     @*/   
     for (i = 0; i < n; ++i) {
-        //@ assert count[arr[i]] >= 0;
+        //@ assert (0 <= arr[i] <= UPPER_LIMIT) ==> (count[arr[i]] >= 0);
         ++count[arr[i]];
         /*@
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
         @*/
         /*@ 
-            assert count[arr[i]] >= 0;
+            assert ((\at(count[arr[i]], LoopCurrent) >= 0) && (\at(count[arr[i]], LoopCurrent) == count[arr[i]] - 1)) ==> (count[arr[i]] >= 0);
         @*/
         /*@
-            assert \forall integer k; (k != arr[i]) && (count[k] == \at(count[k], LoopCurrent) >= 0);
-        @*/
-        
-        /*@
-            assert count[arr[i]] != \at(count[arr[i]], LoopCurrent); 
-        @*/
-        /*@
-            assert \forall integer l; ((0 <= l < n) && (l != i)) && (count[arr[l]] == \at(count[arr[l]], LoopCurrent));
+            assert (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) ==> (count[arr[i]] != \at(count[arr[i]], LoopCurrent)); 
         @*/
         /*@
             assert \forall integer l; 
-            (0 <= l <= UPPER_LIMIT && l != arr[i]) && (count[l] == \at(count[l], LoopCurrent));
+            (0 <= l <= UPPER_LIMIT && l != arr[i]) ==> (count[l] == \at(count[l], LoopCurrent));
         @*/
         /*@
-            assert (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
+            assert (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) && (\forall integer l; 
+            (0 <= l <= UPPER_LIMIT && l != arr[i]) ==> (count[l] == \at(count[l], LoopCurrent))) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
         @*/
     }
     /*@
     @   loop invariant \at(i, LoopEntry) == 1;
     @   loop invariant 1 <= i <= UPPER_LIMIT + 1;
-    @   loop invariant 1 <= i <= UPPER_LIMIT + 1 ==> count[i-1] == Sum(\at(&count[0], LoopEntry), i);
-    @   loop invariant 1 <= i <= UPPER_LIMIT + 1 ==> count[i-1] >= 0; 
+    @   loop invariant (1 <= i <= UPPER_LIMIT + 1) ==> (count[i-1] == Sum(\at(&count[0], LoopEntry), i));
+    @   loop invariant \forall integer k; (0 <= k <= UPPER_LIMIT) ==> (count[k] >= 0);
+    @   loop invariant (1 <= i <= UPPER_LIMIT + 1) ==> (count[i-1] >= 0); 
     @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @   loop variant UPPER_LIMIT + 1 - i;   
     @*/
 
     for (i = 1; i <= UPPER_LIMIT; ++i) {
+        /*@
+        assert count[i-1] >= 0;
+        @*/
         count[i] += count[i - 1];
         /*@ 
-        assert \at(count[i], LoopCurrent) >= 0;
+        assert ((count[i-1] >= 0) && (\at(count[i], LoopCurrent) >= 0) && (count[i] == count[i-1] + \at(count[i], LoopCurrent))) ==> (count[i] >= 0);
         @*/
         /*@ 
         assert (count[i] == count[i-1] + \at(count[i], LoopCurrent));
         @*/
         /*@ 
-        assert count[i] == Sum(\at(&count[0], LoopCurrent), i+1);
+        assert (count[i] == count[i-1] + \at(count[i], LoopCurrent)) ==> (count[i] == Sum(\at(&count[0], LoopCurrent), i+1));
         @*/
     }
     /*@
-        assert \forall integer j; 0 <= j <= UPPER_LIMIT && count[j] >= 0;
+        assert \forall integer j; (0 <= j <= UPPER_LIMIT) ==> (count[j] >= 0);
     @*/
     /*@
     @   loop invariant \at(i, LoopEntry) == 0;
@@ -161,11 +157,11 @@ void count_pos(int *arr, int n) {
     @*/  
     for (i = 0; i < UPPER_LIMIT; ++i) {
         /*@
-        @   assert (i <= 0) || ((i > 0) && (0 <= count[i-1] <= n));
+        @   assert ((i > 0) ==> (j == count[i-1] >= 0)) || ((i == 0) ==> (j == 0));
         @*/
         j = (i > 0) ? count[i - 1] : 0;
         /*@
-        @   assert \forall integer k; 0 <= k <= UPPER_LIMIT ==> 0 <= count[k] <= n;
+        @   assert \forall integer k; (0 <= k <= UPPER_LIMIT) ==> (0 <= count[k] <= n);
         @*/
         /*@
         @   assert (0 <= j <= n);
@@ -173,15 +169,18 @@ void count_pos(int *arr, int n) {
         /*@
         @   loop invariant 0 <= i <= UPPER_LIMIT;
         @   loop invariant RightUnchange{Pre, Here}(arr, &count[0], n, UPPER_LIMIT, i);
-        @   loop invariant \forall integer k; 0 < k < j ==> arr[k] <= i;
-        @   loop invariant \forall integer k; 0 < k < j ==> arr[k - 1] <= arr[k];
+        @   loop invariant \forall integer k; (0 <= k < j) ==> (arr[k] <= i);
+        @   loop invariant \forall integer k; (0 < k < j) ==> (arr[k - 1] <= arr[k]);
         @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
         @   loop assigns arr[j..count[i] - 1];
         @   loop variant n - j;
         @*/
         for (; j < count[i]; ++j) {
             arr[j] = i;
-            //@ assert arr[j] == i;
+            //@ assert (arr[j] == i) ==> (arr[j] <= i);
+            /*@
+                assert (j > 0) ==> (arr[j] >= arr[j-1]);
+            @*/
             //@ assert Unchanged{Pre, Here}(arr, count[i], n);
         }
         
@@ -189,9 +188,8 @@ void count_pos(int *arr, int n) {
         //How to show equality of Unchanged and invariant?
         //@ assert Unchanged{Pre, Here}(arr, count[i], n);
         /*@
-        @   assert \forall integer k; count[i] <= k <= n && \at(arr[k], Pre) == arr[k];
+        @   assert \forall integer k; (count[i] <= k <= n) ==> \at(arr[k], Pre) == arr[k];
         @*/
-        Lol:
     }
 
     /*@
@@ -202,5 +200,9 @@ void count_pos(int *arr, int n) {
     @*/
     for (j = count[UPPER_LIMIT]; j < n; ++j) {
         arr[j] = UPPER_LIMIT;
+        /*@
+            assert Sorted(arr, j);
+        @*/
     }
+    //@ assert Permuted{Pre, Here}(arr, 0, n-1);
 }

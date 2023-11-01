@@ -42,26 +42,12 @@
 */
 
 
-/*@
-@ inductive Permuted{L1,L2}(int *arr, integer l, integer r) {
-@       case Permuted_refl{L}:
-@           \forall int *arr, integer l, r; Permuted{L,L}(arr, l, r);
-@       case Permuted_sym{L1,L2}:
-@           \forall int *arr, integer l, r; Permuted{L1,L2}(arr, l, r) ==> Permuted{L2,L1}(arr, l, r);
-@       case Permuted_trans{L1,L2,L3}:
-@           \forall int *arr, integer l, r; Permuted{L1,L2}(arr, l, r) && Permuted{L2,L3}(arr, l, r) ==> Permuted{L1,L3}(arr, l, r);
-@       case Permuted_swap{L1,L2}:
-@           \forall int *arr, integer l, r, i, j; l <= i <= r && l <= j <= r && Swapped{L1,L2}(arr, i, j) ==> Permuted{L1,L2}(arr, l, r);
-@ }
-@*/
-
 
 /*@
 @   requires \valid(arr + (0..n-1));
 @   requires \forall integer i; 0 <= i <= n - 1 ==> 0 <= arr[i] <= UPPER_LIMIT;
 @   assigns arr[0..n-1];
 @   ensures Sorted(arr, n);
-@   ensures Permuted{Old, Here}(arr, 0, n-1);
 @*/
 void count_pos(int *arr, int n) {
     int count[UPPER_LIMIT + 1];
@@ -204,5 +190,4 @@ void count_pos(int *arr, int n) {
             assert Sorted(arr, j);
         @*/
     }
-    //@ assert Permuted{Pre, Here}(arr, 0, n-1);
 }

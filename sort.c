@@ -15,13 +15,22 @@
     predicate RightUnchange{L1, L2}(int* arr, int* count, integer n, integer limit, integer i) = \forall integer k; \at(count[i], L2) <= k <= n ==> \at(arr[k], L2) == \at(arr[k], L2);
 @*/
 
-
+/*@
+@   logic integer Count(int* arr, integer len, integer elem) = (len == 0) ? 0 : (arr[len - 1] == elem) ? 1 + Count(arr, len - 1, elem) : Count(arr, len - 1, elem); 
+@*/
 
 /*@
 @   lemma spec_linear_sum{L1, L2}:
-    \forall int* a, integer n, integer l; 
-    (\exists integer j; ((0 <= j < n) && (l != j)) && ((\at(a[j], L1) == \at(a[j], L2) + 1) && (\at(a[l], L1) == \at(a[l], L2)))) ==>
-    Sum{L1}(a, n) == Sum{L2}(a, n) + 1;
+    \forall int *a, integer k, n;
+    0 <= k < n
+    && (\forall integer i; 0 <= i < n && i != k ==> \at(a[i], L1) == \at(a[i],L2))
+    && \at(a[k], L2) == \at(a[k], L1) + 1
+        ==> Sum{L2}(a, n) == Sum{L1}(a, n) + 1;
+@*/
+
+/*@
+    predicate SumIncrementConditions{L1, L2}(int arr_i, int* count) = (\at(count[arr_i], L2) == 1 + \at(count[arr_i], L1)) && (\forall integer l; 
+            (0 <= l <= UPPER_LIMIT && l != arr_i) ==> (\at(count[l], L1) == \at(count[l], L2)));
 @*/
 
 /*@
@@ -100,9 +109,9 @@ void count_pos(int *arr, int n) {
             assert \forall integer l; 
             (0 <= l <= UPPER_LIMIT && l != arr[i]) ==> (count[l] == \at(count[l], LoopCurrent));
         @*/
+        //@ assert SumIncrementConditions{LoopCurrent, Here}(arr[i], &count[0]);
         /*@
-            assert (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) && (\forall integer l; 
-            (0 <= l <= UPPER_LIMIT && l != arr[i]) ==> (count[l] == \at(count[l], LoopCurrent))) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
+            assert SumIncrementConditions{LoopCurrent, Here}(arr[i], &count[0]) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
         @*/
     }
     /*@
@@ -167,12 +176,11 @@ void count_pos(int *arr, int n) {
             /*@
                 assert (j > 0) ==> (arr[j] >= arr[j-1]);
             @*/
-            //@ assert Unchanged{Pre, Here}(arr, count[i], n);
+            //@ assert Unchanged{LoopEntry, Here}(arr, count[i], n);
         }
         
         //@ assert Sorted(\at(arr, Here), j - 1);
         //How to show equality of Unchanged and invariant?
-        //@ assert Unchanged{Pre, Here}(arr, count[i], n);
         /*@
         @   assert \forall integer k; (count[i] <= k <= n) ==> \at(arr[k], Pre) == arr[k];
         @*/

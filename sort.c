@@ -16,6 +16,26 @@
 @   logic integer Count(int* arr, integer len, integer elem) = (len == 0) ? 0 : (arr[len - 1] == elem) ? 1 + Count(arr, len - 1, elem) : Count(arr, len - 1, elem); 
 @*/
 
+/*@
+    axiomatic A_all_zeros
+    {
+        predicate zeroed{L}(int*a, integer b, integer e) reads a[b..e-1];
+        axiom zeroed_empty{L}:
+            \forall int* a, integer b, e; b >= e ==> zeroed{L}(a,b,e);
+        axiom zeroed_range{L}:
+            \forall int* a, integer b, e; b < e ==> 
+                zeroed{L}(a, b, e-1) && a[e-1] == 0 ==> zeroed{L}(a, b, e);
+    }
+@*/
+
+
+/*@
+    predicate same_elems{L1, L2}(int* a, integer b, integer e) = 
+    \forall integer i; b <= i < e ==> \at(a[i], L1) == \at(a[i], L2);
+    lemma no_changes{L1, L2} :
+    \forall int* a, integer b, e;
+    same_elems{L1, L2}(a,b,e) ==> zeroed{L1}(a,b,e) ==> zeroed{L2}(a, b, e);
+@*/
 
 /*@
     predicate SumIncrementConditions{L1, L2}(int arr_i, int* count) = (\at(count[arr_i], L2) == 1 + \at(count[arr_i], L1)) && (\forall integer l; 
@@ -55,6 +75,24 @@
 */
 
 /*@
+    axiomatic Occurences_Axiomatic{
+        logic integer l_occurences_of{L}(int value, int* in, integer from, integer to) reads in[from..to-1];
+        axiom occurences_empty_range{L}:
+            \forall int v, int* in, integer from, to;
+                from >= to ==> l_occurences_of{L}(v, in, from, to) == 0;
+        axiom occurences_positive_range_with_element{L}:
+            \forall int v, int* in, integer from, to;
+            (from < to && in[to-1] == v) ==> 
+                l_occurences_of(v, in, from, to) == 1 + l_occurences_of(v, in, from, to-1);
+        axiom occurences_positive_range_without_element{L}:
+            \forall int v, int* in, integer from, to;
+            (from < to && in[to-1] != v) ==> 
+                l_occurences_of(v, in, from, to) == l_occurences_of(v, in, from, to-1);
+    }
+@*/
+
+
+/*@
 @   requires \valid(arr + (0..n-1));
 @   requires \forall integer i; 0 <= i <= n - 1 ==> 0 <= arr[i] <= UPPER_LIMIT;
 @   assigns arr[0..n-1];
@@ -68,8 +106,8 @@ void count_pos(int *arr, int n) {
     @ loop invariant (\forall integer k; (0 <= k < i) ==> (count[k] == 0));
     @ loop invariant 0 <= i <= UPPER_LIMIT + 1;
     @ loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
-    @ loop invariant (0 <= i <= UPPER_LIMIT + 1) ==> Sum(&count[0], i) == 0;
-    @ loop invariant \forall integer j; (0 <= j <= i) ==> Sum(&count[0], j) == 0;
+    // @ loop invariant (0 <= i <= UPPER_LIMIT + 1) ==> Sum(&count[0], i) == 0;
+    @ loop invariant \forall integer j; (0 <= j < i) ==> Sum(&count[0], j) == 0;
     @ loop invariant \forall integer j; (i + 1 <= j <= UPPER_LIMIT) ==> \at(count[j], LoopEntry) == \at(count[j], Here);
     // @ loop invariant (1 <= i <= UPPER_LIMIT + 1) ==> (Sum(&count[0], i) + count[i]) == 0;
     // @ loop invariant \forall integer j; (0 <= j < i) ==> \at(count[j], LoopCurrent) == \at(count[j], Here);
@@ -82,33 +120,20 @@ void count_pos(int *arr, int n) {
             assert \forall integer k; (0 <= k < i) ==> (count[k] == 0); 
         @*/
         /*@
-            assert (i > 0) ? Sum(&count[0], i-1) + count[i-1] == Sum(&count[0], i) : Sum(&count[0], i) == 0;
-        @*/
-        count[i] = 0;
-        //@ assert count[i] == 0;
-        /*@
-            assert ((Sum{Here}(&count[0], i) == 0) && (count[i] == 0)) ==> Sum{Here}(&count[0], i+1) == 0;
-        @*/
-        /*@
-            assert ((Sum{Here}(&count[0], i-1) == 0) && (count[i] == 0)) ==> Sum{Here}(&count[0], i) == 0;
-        @*/
-        /*@
-            assert \forall integer j; (0 <= j <= i) ==> (count[j] == 0);
+            assert Sum{Here}(&count[0], i) == 0;
         @*/
 
-        //@ assert \forall integer j; (0 <= j < i) ==> \at(count[j], Pre1) == \at(count[j], Here);
-        //@ assert \forall integer j; (0 <= j < i) ==> \at(count[j], Pre1) == 0;
-        
-        //@ assert \forall integer j; (i + 1 <= j <= UPPER_LIMIT) ==> \at(count[j], LoopEntry) == \at(count[j], Here);
-        //@ assert \forall integer j; (1 <= j <= i) ==> (Sum{Pre1}(&count[0], j - 1) + \at(count[j - 1], Pre1)) == Sum{Pre1}(&count[0], j);
-        //@ assert \forall integer j; Unchanged{LoopEntry, Here}(&count[0], i) ==> ((0 <= j <= i) ==> (Sum{Pre1}(&count[0], j) == Sum{Here}(&count[0], j)));
-        
-        //@  assert \forall integer j; ((1 <= j <= i) ==> (Sum{Here}(&count[0], j - 1) + \at(count[j - 1], Here)) == Sum{Here}(&count[0], j)) ==> Unchanged{LoopEntry, Here}(&count[0], i);
-        
-        //@ assert \forall integer j; (0 <= j <= i) ==> Sum{Pre1}(&count[0], j) == Sum{Here}(&count[0], j);
-        
-        //@ assert \forall integer j; (0 <= j <= i) ==> Sum(&count[0], j) == 0;
-    
+        count[i] = 0;
+        //@ assert count[i] == 0;
+        //@ assert same_elems{LoopEntry, Here}(arr, 0, i);
+
+        /*@
+            assert ((Sum{Here}(&count[0], i) == 0) && (count[i] == 0)) ==> (Sum{Here}(&count[0], i+1) == 0);
+        @*/
+
+        /*@
+            assert (Sum{Here}(&count[0], i+1) == 0 && (\forall integer k; (0 <= k <= i) ==> (count[k] == 0))) ==> (\forall integer j; (0 <= j <= i) ==> Sum{Here}(&count[0], j) == 0);
+        @*/
     }
     /*@
         assert \forall integer k; (0 <= k <= UPPER_LIMIT) ==> (count[k] == 0);

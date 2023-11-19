@@ -164,7 +164,10 @@ void count_pos(int *arr, int n) {
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
         @*/
         /*@
-            assert Sum{Here}(&count[0], UPPER_LIMIT + 1) == i + 1;
+            assert (\forall integer j; (0 <= j < UPPER_LIMIT + 1 && (j != arr[i])) 
+            && (\at(count[j], LoopCurrent) == \at(count[j], Here)) 
+            && (\at(count[arr[i]], Here) == \at(count[arr[i]], LoopCurrent) + 1)) 
+            ==> Sum{Here}(&count[0], UPPER_LIMIT + 1) == Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1) + 1;
         @*/
         /*@ 
             assert ((\at(count[arr[i]], LoopCurrent) >= 0) && (\at(count[arr[i]], LoopCurrent) == count[arr[i]] - 1)) ==> (count[arr[i]] >= 0);

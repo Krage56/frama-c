@@ -13,7 +13,7 @@
 @*/
 
 /*@
-@   logic integer Count(int* arr, integer len, integer elem) = (len == 0) ? 0 : (arr[len - 1] == elem) ? 1 + Count(arr, len - 1, elem) : Count(arr, len - 1, elem); 
+@   logic integer Count{L}(int* arr, integer len, integer elem) = (len == 0) ? 0 : (\at(arr[len - 1], L) == elem) ? 1 + Count{L}(arr, len - 1, elem) : Count{L}(arr, len - 1, elem); 
 @*/
 
 /*@
@@ -98,6 +98,7 @@
 @   requires \forall integer i; 0 <= i <= n - 1 ==> 0 <= arr[i] <= UPPER_LIMIT;
 @   assigns arr[0..n-1];
 @   ensures Sorted(arr, n);
+@   ensures \forall integer j; (0 <= j < n) ==> (Count{Pre}(arr, n, arr[j]) == Count(arr, n, arr[j]));
 @*/
 void count_pos(int *arr, int n) {
     int count[UPPER_LIMIT + 1];

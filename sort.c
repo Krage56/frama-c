@@ -70,7 +70,8 @@
             0 <= k < n
             && (\forall integer i; ((0 <= i < n) && (i != k)) ==> (\at(a[i], L1) == \at(a[i],L2)))
             && \at(a[k], L2) == \at(a[k], L1) + 1
-                ==> Sum{L2}(a, n) == Sum{L1}(a, n) + 1;  
+                ==> Sum{L2}(a, n) == Sum{L1}(a, n) + 1;
+        axiom unchanging_sum{L1, L2}: \forall int* a, integer n, integer k; (0 <= k < n) ==> ((\at(a[k], L1) == \at(a[k], L2)) ==> (Sum{L1}(a, n) == Sum{L2}(a, n)));  
     }
 */
 
@@ -122,8 +123,9 @@ void count_pos(int *arr, int n) {
         /*@
             assert Sum{Here}(&count[0], i) == 0;
         @*/
-
+        //@ assert Sum(&count[0], i - 1) == 0;
         count[i] = 0;
+        //@ assert Sum(&count[0], i - 1) == 0;
         //@ assert count[i] == 0;
         //@ assert same_elems{LoopEntry, Here}(arr, 0, i);
 

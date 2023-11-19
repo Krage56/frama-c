@@ -67,9 +67,9 @@
         \forall int* a, integer n; (n <= 0) ==> Sum{L}(a, n) == 0;
         axiom induction_step{L}: \forall int* a, integer n; (n > 0) ==> (Sum{L}(a, n) == (Sum{L}(a, n-1) + a[n-1]));
         axiom linear_sum{L1,L2}: \forall int *a, integer k, n;
-            0 <= k < n
+            (0 <= k < n
             && (\forall integer i; ((0 <= i < n) && (i != k)) ==> (\at(a[i], L1) == \at(a[i],L2)))
-            && \at(a[k], L2) == \at(a[k], L1) + 1
+            && (\at(a[k], L2) == \at(a[k], L1) + 1))
                 ==> Sum{L2}(a, n) == Sum{L1}(a, n) + 1;
         axiom unchanging_sum{L1, L2}: \forall int* a, integer n, integer k; (0 <= k < n) ==> ((\at(a[k], L1) == \at(a[k], L2)) ==> (Sum{L1}(a, n) == Sum{L2}(a, n)));  
     }
@@ -149,16 +149,17 @@ void count_pos(int *arr, int n) {
     @   loop invariant \forall integer j; (0 <= j < n) ==> (0 <= arr[j] <= UPPER_LIMIT);
     @   loop invariant \forall integer j; (0 <= j <= UPPER_LIMIT) ==> (count[j] >= 0); 
     @   loop invariant \forall integer j; (0 <= j < n) ==> \valid(&count[0] + (arr[j]));
+    @   loop invariant (0 <= i < n) ==> (count[arr[i]] <= Count(arr, n, arr[i]));
     @   loop invariant (Sum(&count[0], UPPER_LIMIT + 1) <= n);
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
     @*/   
     for (i = 0; i < n; ++i) {
         //@ assert (0 <= arr[i] <= UPPER_LIMIT) ==> (count[arr[i]] >= 0);
-        /*@
-            assert Sum{Here}(&count[0], UPPER_LIMIT + 1) == i;
-        @*/
+        //@ assert Sum{Here}(&count[0], UPPER_LIMIT + 1) == i;
+        //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
         ++count[arr[i]];
+        //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
         /*@
             assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
         @*/
@@ -188,7 +189,6 @@ void count_pos(int *arr, int n) {
     @   loop invariant (1 <= i <= UPPER_LIMIT + 1) ==> (count[i-1] == Sum(\at(&count[0], LoopEntry), i));
     @   loop invariant \forall integer k; (0 <= k <= UPPER_LIMIT) ==> (count[k] >= 0);
     @   loop invariant (1 <= i <= UPPER_LIMIT + 1) ==> (count[i-1] >= 0); 
-    @   loop invariant (0 <= i <= UPPER_LIMIT) ==> (count[i] <= Count(arr, n, arr[i]));
     @   loop invariant \valid(&count[0] + (0..UPPER_LIMIT));
     @   loop variant UPPER_LIMIT + 1 - i;   
     @*/

@@ -149,40 +149,22 @@ void count_pos(int *arr, int n) {
     @   loop invariant \forall integer j; (0 <= j < n) ==> (0 <= arr[j] <= UPPER_LIMIT);
     @   loop invariant \forall integer j; (0 <= j <= UPPER_LIMIT) ==> (count[j] >= 0); 
     @   loop invariant \forall integer j; (0 <= j < n) ==> \valid(&count[0] + (arr[j]));
-    @   loop invariant (0 <= i < n) ==> (count[arr[i]] <= Count(arr, n, arr[i]));
-    @   loop invariant (Sum(&count[0], UPPER_LIMIT + 1) <= n);
+    @   loop invariant (0 <= i <= n) ==> (Sum(&count[0], UPPER_LIMIT + 1) == i);
     @   loop assigns count[0..UPPER_LIMIT], i;
     @   loop variant n - i;
     @*/   
     for (i = 0; i < n; ++i) {
         //@ assert (0 <= arr[i] <= UPPER_LIMIT) ==> (count[arr[i]] >= 0);
         //@ assert Sum{Here}(&count[0], UPPER_LIMIT + 1) == i;
-        //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
         ++count[arr[i]];
-        //@ assert count[arr[i]] <= Count(arr, n, arr[i]);
-        /*@
-            assert count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent);
-        @*/
         /*@
             assert (\forall integer j; (0 <= j < UPPER_LIMIT + 1 && (j != arr[i])) 
             && (\at(count[j], LoopCurrent) == \at(count[j], Here)) 
             && (\at(count[arr[i]], Here) == \at(count[arr[i]], LoopCurrent) + 1)) 
             ==> Sum{Here}(&count[0], UPPER_LIMIT + 1) == Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1) + 1;
         @*/
-        /*@ 
-            assert ((\at(count[arr[i]], LoopCurrent) >= 0) && (\at(count[arr[i]], LoopCurrent) == count[arr[i]] - 1)) ==> (count[arr[i]] >= 0);
-        @*/
-        /*@
-            assert (count[arr[i]] == 1 + \at(count[arr[i]], LoopCurrent)) ==> (count[arr[i]] != \at(count[arr[i]], LoopCurrent)); 
-        @*/
-        /*@
-            assert \forall integer l; 
-            (0 <= l <= UPPER_LIMIT && l != arr[i]) ==> (count[l] == \at(count[l], LoopCurrent));
-        @*/
-        //@ assert SumIncrementConditions{LoopCurrent, Here}(arr[i], &count[0]);
-        /*@
-            assert SumIncrementConditions{LoopCurrent, Here}(arr[i], &count[0]) ==> (Sum{Here}(&count[0], UPPER_LIMIT + 1) == 1 + Sum{LoopCurrent}(&count[0], UPPER_LIMIT + 1));
-        @*/
+        //@ assert Sum{Here}(&count[0], UPPER_LIMIT + 1) == i+1;
+        
     }
     //@ assert Sum(&count[0], UPPER_LIMIT + 1) == n;
 
